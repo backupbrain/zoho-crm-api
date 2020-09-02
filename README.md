@@ -1,3 +1,4 @@
+
 # Zoho CRM API
 This API is for people who are having trouble with the official Zoho API.
 
@@ -81,6 +82,17 @@ ZohoCRMOAuthToken({
 # oauth_refresh_token.access_token is used to authorize future interacitons with the API
 # oauth_refresh_token.is_expired() returns true when the token has expired
 ```
+
+### The ZohoCRMOAuthToken Object
+
+When you create or refresh an oauth_token, the `ZohoCRMRestClient` will return a `ZohoCRMOAuthToken` instance.
+
+The `ZohoCRMOAuthToken` contains:
+* an `.access_token`, which is used to authorize future API access
+* `.is_expired()`, which returns `True` if the access token is expired
+
+If the  `ZohoCRMOAuthToken` was created with the `zohoclient.generate_access_token` method, it will also contain:
+* `.refresh_token`, which must be used for all future token refresh requests using the `zohoclient.generate_refresh_token()` method.
 
 ### Working with Contacts
 
