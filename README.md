@@ -39,6 +39,21 @@ oauth_token = zohoclient.generate_access_token(
     grant_token,
     redirect_uri
 )
+
+# returns a ZohoCRMOAuthToken instance:
+'''
+ZohoCRMOAuthToken({
+    "access_token": "<access_token>",
+    "refresh_token": "<refresh_token>,
+    "api_domain": "https://www.zohoapis.com",
+    "token_type": "Bearer",
+    "expires_in": 3600
+})
+'''
+
+# oauth_token.refresh_token is used to refresh the token
+# oauth_token.access_token is used to authorize future interacitons with the API
+# oauth_token.is_expired() returns true when the token has expired
 ```
 
 ### Refresh 
@@ -53,6 +68,18 @@ oauth_refresh_token = zohoclient.generate_refresh_token(
     client_secret,
     oauth_token.refresh_token
 )
+
+# returns a ZohoCRMOAuthToken instance:
+'''
+ZohoCRMOAuthToken({
+    "access_token": "<access_token>",
+    "api_domain": "https://www.zohoapis.com",
+    "token_type": "Bearer",
+    "expires_in": 3600
+})
+'''
+# oauth_refresh_token.access_token is used to authorize future interacitons with the API
+# oauth_refresh_token.is_expired() returns true when the token has expired
 ```
 
 ### Working with Contacts
