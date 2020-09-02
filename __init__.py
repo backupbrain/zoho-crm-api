@@ -71,8 +71,8 @@ class ZohoCRMRestClient:
             'code': grant_token,
         }
         response = requests.post(url, data=post_parameters)
-        print(response.status_code)
-        print(json.dumps(response.json(), indent=4))
+        # print(response.status_code)
+        # print(json.dumps(response.json(), indent=4))
         if response.status_code == 200:
             response_json = response.json()
             if 'error' not in response_json:
@@ -96,8 +96,8 @@ class ZohoCRMRestClient:
             'grant_type': 'refresh_token'
         }
         response = requests.post(url, params=query_parameters)
-        print(response.status_code)
-        print(json.dumps(response.json(), indent=4))
+        # print(response.status_code)
+        # print(json.dumps(response.json(), indent=4))
         if response.status_code == 200:
             response_json = response.json()
             if 'error' not in response_json:
@@ -129,8 +129,8 @@ class ZohoCRMRestClient:
             params=params,
             json=json_data
         )
-        print(response.status_code)
-        print(json.dumps(response.json(), indent=4))
+        # print(response.status_code)
+        # print(json.dumps(response.json(), indent=4))
         return response
 
 
@@ -176,7 +176,7 @@ class ZohoCRMRecord:
         for property, value in vars(self).items():
             if property[0] != '_':
                 data[property] = value
-        print(json.dumps({'data': [data]}, indent=4))
+        # print(json.dumps({'data': [data]}, indent=4))
         response = self._rest_client.api_fetch(
             access_token,
             'Contacts',
