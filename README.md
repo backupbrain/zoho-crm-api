@@ -1,6 +1,16 @@
 
+
 # Zoho CRM API
-This API is for people who are having trouble with the official Zoho API.
+This API is for people who are having trouble with the official Zoho API. 
+
+* Supports Zoho API v2
+
+| Module   | Create | Retrieve | Update | Delete |
+|----------|--------|----------|--------|--------|
+| Contacts | x      | x        | x      |        |
+| Leads    | x      | x        | x      |        |
+| Vendors  | x      | x        | x      |        |
+
 
 
 ## Installation
@@ -96,6 +106,18 @@ The `ZohoCRMOAuthToken` contains:
 
 If the  `ZohoCRMOAuthToken` was created with the `zohoclient.generate_access_token` method, it will also contain:
 * `.refresh_token`, which must be used for all future token refresh requests using the `zohoclient.generate_refresh_token()` method.
+
+### Changing the Base URL
+
+By default, the `ZohoCRMRestClient` connects to the `https://www.zohoapis.com` data center. This can be changed by setting the `.api_base_url` property:
+
+```python
+zohoclient = ZohoCRMRestClient()
+zohoclient.api_base_url = 'https://accounts.zoho.eu'  # EU data center
+```
+
+[Zoho data center options can be viewed here.](https://www.zoho.com/crm/developer/docs/api/multi-dc.html)
+
 
 ### Working with Contacts
 
