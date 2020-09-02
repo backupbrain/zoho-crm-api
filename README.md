@@ -9,6 +9,9 @@ You can install
 ```
 $ cd <python-project-folder>
 $ git clone https://github.com/backupbrain/zoho-crm-api.git
+$ cd zoho-crm-api
+$ pip install -r requirements.txt  # install requirements
+$ cd ..  # go back to project folder
 ```
 
 ## Usage
