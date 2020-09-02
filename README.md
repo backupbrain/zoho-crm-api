@@ -68,9 +68,9 @@ from zoho-crm-api import ZohoCRMContact
 ```python
 contact_id = 1234023423424
 contact = ZohoCRMContact.fetch(
-	zohoclient,
-	refresh_token.access_token,
-	contact_id
+    zohoclient,
+    refresh_token.access_token,
+    contact_id
 )
 ```
 
@@ -113,8 +113,8 @@ from zoho-crm-api import ZohoCRMVendor
 ```python
 vendor_id = 1234023423424
 contact = ZohoCRMVendor.fetch(
-	zohoclient,
-	refresh_token.access_token,
+    zohoclient,
+    refresh_token.access_token,
     vendor_id
 )
 ```
@@ -136,8 +136,8 @@ from zoho-crm-api import ZohoCRMLead
 ```python
 lead_id = 1234023423424
 contact = ZohoCRMLead.fetch(
-	zohoclient,
-	refresh_token.access_token,
+    zohoclient,
+    refresh_token.access_token,
     vendor_id
 )
 ```
