@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="zohocrmapi-backupbrain",
+    name="zohocrmapi",
     version="0.0.1",
     author="Adonis Gaitatzis",
     author_email="backupbrain@gmail.com",
