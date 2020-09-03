@@ -56,6 +56,9 @@ class ZohoCRMRestClient:
     client_secret = None
     redirect_uri = None
 
+    oauth_access_token = None
+    oauth_refresh_token = None
+
     def __init__(self, client_id, client_secret, redirect_uri):
         """Initialize REST client."""
         self.client_id = client_id,
@@ -127,9 +130,9 @@ class ZohoCRMRestClient:
         if headers is None:
             headers = {}
         if self.oauth_refresh_token is None:
-            headers['Authorization'] = 'Zoho-oauthtoken {}'.format(self.oauth_refresh_token.access_token)
-        else:
             headers['Authorization'] = 'Zoho-oauthtoken {}'.format(self.oauth_access_token.access_token)
+        else:
+            headers['Authorization'] = 'Zoho-oauthtoken {}'.format(self.oauth_refresh_token.access_token)
         response = requests.request(
             method,
             url=url,
