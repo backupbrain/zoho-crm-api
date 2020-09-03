@@ -204,7 +204,7 @@ class ZohoCRMRecord:
         data = self.to_json()
         response = self._rest_client.api_fetch(
             '{record_type}/{record_id}'.format(record_type=self._record_type, record_id=self.id),
-            method='POST',
+            method='PUT',
             json_data=data
         )
         if response.status_code != 201:
