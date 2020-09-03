@@ -197,7 +197,11 @@ class ZohoCRMRecord:
             response_json = response.json()
             self.id = response_json['data'][0]['details']['id']
         else:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
     def update(self):
         """Update."""
@@ -208,7 +212,11 @@ class ZohoCRMRecord:
             json_data=data
         )
         if response.status_code != 201:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
     def delete(self):
         """Delete."""
@@ -219,7 +227,11 @@ class ZohoCRMRecord:
         if response.status_code == 200:
             self.id = None
         else:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
     @classmethod
     def fetch(cls, zoho_rest_client, id):
@@ -234,7 +246,11 @@ class ZohoCRMRecord:
             obj.from_json(response.json()['data'][0])
             return obj
         else:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
     @classmethod
     def delete_id(cls, zoho_rest_client, id):
@@ -244,7 +260,11 @@ class ZohoCRMRecord:
             method='DELETE'
         )
         if response.status_code != 200:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
 
 class ZohoCRMUser(ZohoCRMRecord):
@@ -266,7 +286,11 @@ class ZohoCRMUser(ZohoCRMRecord):
         if response.status_code == 200:
             self.from_json(response.json()['users'][0])
         else:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
     def fetch_user(self, access_token, user_id):
         """Fetch User."""
@@ -278,7 +302,11 @@ class ZohoCRMUser(ZohoCRMRecord):
         if response.status_code == 200:
             self.from_json(response.json()['users'][0])
         else:
-            raise ValueError(response.json()['message'])
+            response_json = response.json()
+            if 'data' in response_json:
+                raise ValueError(response_json['data'][0]['message'])
+            else:
+                raise ValueError(response_json['message'])
 
 
 class ZohoCRMContact(ZohoCRMRecord):
