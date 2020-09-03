@@ -189,7 +189,7 @@ class ZohoCRMRecord:
                 data[property] = value
         # print(json.dumps({'data': [data]}, indent=4))
         response = self._rest_client.api_fetch(
-            '{record_type}'.format(self._record_type),
+            '{record_type}'.format(record_type=self._record_type),
             method='POST',
             json_data={'data': [data]}
         )
@@ -203,7 +203,7 @@ class ZohoCRMRecord:
         """Update."""
         data = self.to_json()
         response = self._rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(self._record_type, self.id),
+            '{record_type}/{record_id}'.format(record_type=self._record_type, record_id=self.id),
             method='POST',
             json_data=data
         )
@@ -213,7 +213,7 @@ class ZohoCRMRecord:
     def delete(self):
         """Delete."""
         response = self._rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(self._record_type, self.id),
+            '{record_type}/{record_id}'.format(record_type=self._record_type, record_id=self.id),
             method='DELETE'
         )
         if response.status_code == 200:
@@ -240,7 +240,7 @@ class ZohoCRMRecord:
     def delete_id(cls, zoho_rest_client, id):
         """Delete from ID."""
         response = zoho_rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(cls._record_type, id),
+            '{record_type}/{record_id}'.format(record_type=cls._record_type, record_id=id),
             method='DELETE'
         )
         if response.status_code != 200:
@@ -273,37 +273,10 @@ class ZohoCRMUser(ZohoCRMRecord):
         self.clear()
         response = self._rest_client.api_fetch(
             access_token,
-            'users/{user_id}'.format(user_id),
+            'users/{user_id}'.format(user_id=user_id),
         )
         if response.status_code == 200:
             self.from_json(response.json()['users'][0])
-        else:
-            raise ValueError(response.json()['message'])
-
-    @staticmethod
-    def fetch(zoho_rest_client, access_token, id):
-        """Fetch by ID."""
-        contact = ZohoCRMUser(zoho_rest_client)
-        response = zoho_rest_client.api_fetch(
-            access_token,
-            '{record_type}/{id}'.format(record_type=ZohoCRMUser._record_type, id=id),
-            method='GET'
-        )
-        if response.status_code == 200:
-            contact.from_json(response.json()['data'][0])
-            return contact
-        else:
-            raise ValueError(response.json()['message'])
-
-    @staticmethod
-    def delete_id(self, zoho_rest_client):
-        """Delete."""
-        response = zoho_rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(ZohoCRMUser._record_type, self.id),
-            method='DELETE'
-        )
-        if response.status_code == 200:
-            self.id = None
         else:
             raise ValueError(response.json()['message'])
 

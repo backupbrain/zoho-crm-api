@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zohocrmapi",
-    version="0.0.2",
+    version="0.0.4",
     author="Adonis Gaitatzis",
     author_email="backupbrain@gmail.com",
     description="A Zoho CRM API",
