@@ -10,32 +10,39 @@ class ZohoCRMOAuthToken:
     refresh_token = None
     api_domain = None
     token_type = None
-    expires_in = None
+    expiry_timestamp = None
 
     def __init__(self, json_data):
         """Initialize."""
         self.load_json(json_data)
+
+    def to_json(self):
+        """Output to JSON."""
+        data = {
+            'access_token': self.access_token,
+            'api_domain': self.api_domain,
+            'token_type': self.token_type,
+            'expiry_timestamp': self.expiry_timestamp,
+        }
+        if self.refresh_token is not None:
+            data['refresh_token'] = self.refresh_token
+        return data
 
     def load_json(self, json_data):
         """Convert from JSON."""
         self.access_token = json_data['access_token']
         self.api_domain = json_data['api_domain']
         self.token_type = json_data['token_type']
-        self.expires_in = json_data['expires_in']
+        if 'expires_in' in json_data:
+            self.expiry_timestamp = json_data['expires_in'] + time.time()
+        if 'expiry_timestamp' in json_data:
+            self.expiry_timestamp = json_data['expiry_timestamp']
         if 'refresh_token' in json_data:
             self.refresh_token = json_data['refresh_token']
 
-    def get_expiry_time_ms(self):
-        """Get expiry time in MS."""
-        return (self.expires_in * 1000) + self.get_current_time_ms()
-
-    def get_current_time_ms(self):
-        """Get current time in MS."""
-        return round(time.time() * 1000)
-
     def is_expired(self):
         """Return True if this code is expired."""
-        return self.get_current_time_ms() >= self.get_expiry_time_ms()
+        return time.time() >= self.expiry_timestamp
 
 
 class ZohoCRMRestClient:
@@ -45,19 +52,17 @@ class ZohoCRMRestClient:
     api_version = 'v2'
     accounts_url = 'https://accounts.zoho.com'
 
-    def get_client_id(self):
-        """Return client ID."""
-        return self.config['client_id']
+    client_id = None
+    client_secret = None
+    redirect_uri = None
 
-    def get_client_secret(self):
-        """Return client secret."""
-        return self.config['client_secret']
+    def __init__(self, client_id, client_secret, redirect_uri):
+        """Initialize REST client."""
+        self.client_id = client_id,
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
 
-    def get_redirect_uri(self):
-        """Return redirect URI."""
-        return self.config['redirect_uri']
-
-    def generate_access_token(self, client_id, client_secret, grant_token, redirect_uri):
+    def generate_access_token(self, grant_token):
         """Generate access token."""
         url = '{accounts_url}/oauth/{api_version}/token'.format(
             accounts_url=self.accounts_url,
@@ -65,9 +70,9 @@ class ZohoCRMRestClient:
         )
         post_parameters = {
             'grant_type': 'authorization_code',
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'redirect_uri': redirect_uri,
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'redirect_uri': self.redirect_uri,
             'code': grant_token,
         }
         response = requests.post(url, data=post_parameters)
@@ -83,16 +88,16 @@ class ZohoCRMRestClient:
         else:
             raise ValueError(response_json['message'])
 
-    def generate_refresh_token(self, client_id, client_secret, refresh_token):
+    def generate_refresh_token(self):
         """Generate access token."""
         url = '{accounts_url}/oauth/{api_version}/token'.format(
             accounts_url=self.accounts_url,
             api_version=self.api_version
         )
         query_parameters = {
-            'refresh_token': refresh_token,
-            'client_id': client_id,
-            'client_secret': client_secret,
+            'refresh_token': self.oauth_access_token.refresh_token,
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
             'grant_type': 'refresh_token'
         }
         response = requests.post(url, params=query_parameters)
@@ -112,7 +117,7 @@ class ZohoCRMRestClient:
         """Return true if access_token is active."""
         return access_token.is_expired() is False
 
-    def api_fetch(self, access_token, endpoint, method='GET', headers=None, params=None, json_data=None):
+    def api_fetch(self, endpoint, method='GET', headers=None, params=None, json_data=None):
         """Fetch from endpoint."""
         url = '{api_base_url}/crm/{api_version}/{endpoint}'.format(
             api_base_url=self.api_base_url,
@@ -121,7 +126,10 @@ class ZohoCRMRestClient:
         )
         if headers is None:
             headers = {}
-        headers['Authorization'] = 'Zoho-oauthtoken {}'.format(access_token)
+        if self.oauth_refresh_token is None:
+            headers['Authorization'] = 'Zoho-oauthtoken {}'.format(self.oauth_refresh_token.access_token)
+        else:
+            headers['Authorization'] = 'Zoho-oauthtoken {}'.format(self.oauth_access_token.access_token)
         response = requests.request(
             method,
             url=url,
@@ -137,7 +145,7 @@ class ZohoCRMRestClient:
 class ZohoCRMRecord:
     """Zoho Record."""
 
-    record_type = ''
+    _record_type = ''
     _rest_client = None
 
     def __init__(self, zoho_rest_client):
@@ -163,14 +171,14 @@ class ZohoCRMRecord:
         for key, value in json_data.items():
             setattr(self, key, value)
 
-    def save(self, access_token):
+    def save(self):
         """Save contact."""
         if hasattr(self, 'id') and self.id is not None:
-            self.update(access_token)
+            self.update()
         else:
-            self.insert(access_token)
+            self.insert()
 
-    def insert(self, access_token):
+    def insert(self):
         """Insert."""
         data = {}
         for property, value in vars(self).items():
@@ -178,8 +186,7 @@ class ZohoCRMRecord:
                 data[property] = value
         # print(json.dumps({'data': [data]}, indent=4))
         response = self._rest_client.api_fetch(
-            access_token,
-            'Contacts',
+            '{record_type}'.format(self._record_type),
             method='POST',
             json_data={'data': [data]}
         )
@@ -189,23 +196,58 @@ class ZohoCRMRecord:
         else:
             raise ValueError(response.json()['message'])
 
-    def update(self, access_token):
+    def update(self):
         """Update."""
         data = self.to_json()
         response = self._rest_client.api_fetch(
-            access_token,
-            'Contacts/{record_id}'.format(self.id),
+            '{record_type}/{record_id}'.format(self._record_type, self.id),
             method='POST',
             json_data=data
         )
         if response.status_code != 201:
             raise ValueError(response.json()['message'])
 
+    def delete(self):
+        """Delete."""
+        response = self._rest_client.api_fetch(
+            '{record_type}/{record_id}'.format(self._record_type, self.id),
+            method='DELETE'
+        )
+        if response.status_code == 200:
+            self.id = None
+        else:
+            raise ValueError(response.json()['message'])
+
+    @classmethod
+    def fetch(cls, zoho_rest_client, id):
+        """Fetch by ID."""
+        print(cls._record_type)
+        obj = cls(zoho_rest_client)
+        response = zoho_rest_client.api_fetch(
+            '{record_type}/{id}'.format(record_type=cls._record_type, id=id),
+            method='GET'
+        )
+        if response.status_code == 200:
+            obj.from_json(response.json()['data'][0])
+            return obj
+        else:
+            raise ValueError(response.json()['message'])
+
+    @classmethod
+    def delete_id(cls, zoho_rest_client, id):
+        """Delete from ID."""
+        response = zoho_rest_client.api_fetch(
+            '{record_type}/{record_id}'.format(cls._record_type, id),
+            method='DELETE'
+        )
+        if response.status_code != 200:
+            raise ValueError(response.json()['message'])
+
 
 class ZohoCRMUser(ZohoCRMRecord):
     """Zoho CRM User."""
 
-    record_type = 'users'
+    _record_type = 'users'
     _rest_client = None
 
     def fetch_current_user(self, access_token):
@@ -241,12 +283,24 @@ class ZohoCRMUser(ZohoCRMRecord):
         contact = ZohoCRMUser(zoho_rest_client)
         response = zoho_rest_client.api_fetch(
             access_token,
-            '{record_type}/{id}'.format(record_type=ZohoCRMUser.record_type, id=id),
+            '{record_type}/{id}'.format(record_type=ZohoCRMUser._record_type, id=id),
             method='GET'
         )
         if response.status_code == 200:
             contact.from_json(response.json()['data'][0])
             return contact
+        else:
+            raise ValueError(response.json()['message'])
+
+    @staticmethod
+    def delete_id(self, zoho_rest_client):
+        """Delete."""
+        response = zoho_rest_client.api_fetch(
+            '{record_type}/{record_id}'.format(ZohoCRMUser._record_type, self.id),
+            method='DELETE'
+        )
+        if response.status_code == 200:
+            self.id = None
         else:
             raise ValueError(response.json()['message'])
 
@@ -254,61 +308,118 @@ class ZohoCRMUser(ZohoCRMRecord):
 class ZohoCRMContact(ZohoCRMRecord):
     """Zoho CRM Contact."""
 
-    record_type = 'Contacts'
-
-    @staticmethod
-    def fetch(zoho_rest_client, access_token, id):
-        """Fetch by ID."""
-        contact = ZohoCRMContact(zoho_rest_client)
-        response = zoho_rest_client.api_fetch(
-            access_token,
-            '{record_type}/{id}'.format(record_type=ZohoCRMContact.record_type, id=id),
-            method='GET'
-        )
-        if response.status_code == 200:
-            contact.from_json(response.json()['data'][0])
-            return contact
-        else:
-            raise ValueError(response.json()['message'])
+    _record_type = 'Contacts'
 
 
 class ZohoCRMVendor(ZohoCRMRecord):
-    """Zoho CRM Contact."""
+    """Zoho CRM Vendor."""
 
-    record_type = 'Vendors'
-
-    @staticmethod
-    def fetch(zoho_rest_client, access_token, id):
-        """Fetch by ID."""
-        contact = ZohoCRMContact(zoho_rest_client)
-        response = zoho_rest_client.api_fetch(
-            access_token,
-            '{record_type}/{id}'.format(record_type=ZohoCRMVendor.record_type, id=id),
-            method='GET'
-        )
-        if response.status_code == 200:
-            contact.from_json(response.json()['data'][0])
-            return contact
-        else:
-            raise ValueError(response.json()['message'])
+    _record_type = 'Vendors'
 
 
 class ZohoCRMLead(ZohoCRMRecord):
-    """Zoho CRM Contact."""
+    """Zoho CRM Lead."""
 
-    record_type = 'Leads'
+    _record_type = 'Leads'
 
-    @staticmethod
-    def fetch(zoho_rest_client, access_token, id):
-        """Fetch by ID."""
-        contact = ZohoCRMContact(zoho_rest_client)
-        response = zoho_rest_client.api_fetch(
-            access_token,
-            '{record_type}/{id}'.format(record_type=ZohoCRMLead.record_type, id=id),
-            method='GET'
-        )
-        if response.status_code == 200:
-            contact.from_json(response.json()['data'][0])
-            return contact
-        else:
-            raise ValueError(response.json()['message'])
+
+class ZohoCRMAccount(ZohoCRMRecord):
+    """Zoho CRM Account."""
+
+    _record_type = 'Deal'
+
+
+class ZohoCRMDeal(ZohoCRMRecord):
+    """Zoho CRM Account."""
+
+    _record_type = 'Deals'
+
+
+class ZohoCRMCampaign(ZohoCRMRecord):
+    """Zoho CRM Campaign."""
+
+    _record_type = 'Campaigns'
+
+
+class ZohoCRMTask(ZohoCRMRecord):
+    """Zoho CRM Task."""
+
+    _record_type = 'Tasks'
+
+
+class ZohoCRMCase(ZohoCRMRecord):
+    """Zoho CRM Case."""
+
+    _record_type = 'Cases'
+
+
+class ZohoCRMEvent(ZohoCRMRecord):
+    """Zoho CRM Event."""
+
+    _record_type = 'Events'
+
+
+class ZohoCRMCall(ZohoCRMRecord):
+    """Zoho CRM Call."""
+
+    _record_type = 'Calls'
+
+
+class ZohoCRMSolution(ZohoCRMRecord):
+    """Zoho CRM Solution."""
+
+    _record_type = 'Solutions'
+
+
+class ZohoCRMProduct(ZohoCRMRecord):
+    """Zoho CRM Product."""
+
+    _record_type = 'Products'
+
+
+class ZohoCRMQuote(ZohoCRMRecord):
+    """Zoho CRM Quote."""
+
+    _record_type = 'Quotes'
+
+
+class ZohoCRMInvoice(ZohoCRMRecord):
+    """Zoho CRM Invoice."""
+
+    _record_type = 'Invoices'
+
+
+class ZohoCRMCustom(ZohoCRMRecord):
+    """Zoho CRM Custom."""
+
+    _record_type = 'Custom'
+
+
+class ZohoCRMActivity(ZohoCRMRecord):
+    """Zoho CRM Activity."""
+
+    _record_type = 'Activities'
+
+
+class ZohoCRMPriceBook(ZohoCRMRecord):
+    """Zoho CRM Price Book."""
+
+    _record_type = 'pricebooks'
+
+
+class ZohoCRMSalesOrder(ZohoCRMRecord):
+    """Zoho CRM Sales Order."""
+
+    _record_type = 'salesorders'
+
+
+class ZohoCRMPurchaseOrder(ZohoCRMRecord):
+    """Zoho CRM Purchase Order."""
+
+    _record_type = 'purchaseorders'
+
+
+class ZohoCRMNote(ZohoCRMRecord):
+    """Zoho CRM Note."""
+
+    _record_type = 'notes'
