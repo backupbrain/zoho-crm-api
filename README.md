@@ -37,10 +37,6 @@ So far this package supports the following Record API actions:
 You can install from pip:
 ```
 $ pip install zohocrmapi
-$ git clone https://github.com/backupbrain/zohocrm.git
-$ cd zohocrm
-$ pip install -r requirements.txt  # install requirements
-$ cd ..  # go back to project folder
 ```
 
 Or from Github:
