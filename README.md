@@ -37,8 +37,8 @@ So far this package supports the following Record API actions:
 You can install 
 ```
 $ cd <python-project-folder>
-$ git clone https://github.com/backupbrain/zoho-crm-api.git
-$ cd zoho-crm-api
+$ git clone https://github.com/backupbrain/zohocrm.git
+$ cd zohocrm
 $ pip install -r requirements.txt  # install requirements
 $ cd ..  # go back to project folder
 ```
@@ -57,7 +57,7 @@ $ cd ..  # go back to project folder
 
 
 ```python
-from zoho-crm-api import ZohoCRMRestClient
+from zohocrm import ZohoCRMRestClient
 
 client_id = '<paste your Zoho client id>'
 client_secret = '<paste your Zoho client secret>'
@@ -89,7 +89,7 @@ The `oauth_access_token` is saved for future use, for instance for accessing res
 In cases where the OAuth  token must be loaded manually, for instance in a cron job that asks to refresh the token, the ZohoCRMOAuthToken can be loaded manually:
 
 ```python
-from zoho-crm-api import ZohoCRMRestClient, ZohoCRMOAuthToken
+from zohocrm import ZohoCRMRestClient, ZohoCRMOAuthToken
 
 zohoclient = ZohoCRMRestClient(client_id, client_secret, redirect_uri)
 zohoclient.oauth_access_token = ZohoCRMOAuthToken({
@@ -131,7 +131,7 @@ In cases where the OAuth  token must be loaded manually, for instance in a cron 
 
 
 ```python
-from zoho-crm-api import ZohoCRMRestClient, ZohoCRMOAuthToken
+from zohocrm import ZohoCRMRestClient, ZohoCRMOAuthToken
 
 zohoclient = ZohoCRMRestClient(client_id, client_secret, redirect_uri)
 zohoclient.oauth_access_token = ZohoCRMOAuthToken({
@@ -152,7 +152,7 @@ zohoclient.oauth_refresh_token = ZohoCRMOAuthToken({
 
 
 ```python
-from zoho-crm-api import ZohoCRMRestClient, ZohoCRMOAuthToken
+from zohocrm import ZohoCRMRestClient, ZohoCRMOAuthToken
 
 zohoclient = ZohoCRMRestClient(client_id, client_secret, redirect_uri)
 zohoclient.oauth_access_token = ZohoCRMOAuthToken({
@@ -192,7 +192,7 @@ zohoclient.api_base_url = 'https://accounts.zoho.eu'  # EU data center
 Import the `ZohoCRMContact` module
 
 ```python
-from zoho-crm-api import ZohoCRMContact
+from zohocrm import ZohoCRMContact
 ```
 
 #### Retrieve a contact
@@ -263,7 +263,7 @@ contact = ZohoCRMContact.delete_id(
 Import the `ZohoCRMVendor` module
 
 ```python
-from zoho-crm-api import ZohoCRMVendor
+from zohocrm import ZohoCRMVendor
 ```
 
 #### Retrieve a Vendor
@@ -285,7 +285,7 @@ Inserting  and updating a `ZohoCRMVendor` is the  same as with a `ZohoCRMContact
 Import the `ZohoCRMLead` module
 
 ```python
-from zoho-crm-api import ZohoCRMLead
+from zohocrm import ZohoCRMLead
 ```
 
 #### Delete a Lead
