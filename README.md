@@ -375,7 +375,7 @@ Let's say you have a custom module called `Friends` which has the following stru
 * Email
 * Favorite Color
 
-You can create an object that talks to this module by creating a class that extends `ZohoCRMRecord` with a `_record_type` property equal to the [module's API Name](https://www.zoho.com/crm/developer/docs/api/modules-api.html#:~:text=Zoho%20CRM%20generates%20API%20name,%2C%20fields%2C%20and%20related%20lists.).
+You can create an object that talks to this module by creating a class that extends `ZohoCRMRecord` with a `_module_name` property equal to the [module's API Name](https://www.zoho.com/crm/developer/docs/api/modules-api.html#:~:text=Zoho%20CRM%20generates%20API%20name,%2C%20fields%2C%20and%20related%20lists.).
 
 ```python
 from zohocrm import ZohoCRMRecord
@@ -383,7 +383,7 @@ from zohocrm import ZohoCRMRecord
 class ZohoCRMFriend(ZohoCRMRecord):
     """Zoho CRM Custom Module "Friends"."""
 
-    _record_type = 'Friends'
+    _module_name = 'Friends'
 ```
 
 Zoho converts the module's field such that:
