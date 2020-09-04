@@ -1,0 +1,21 @@
+site_name: Zoho CRM API
+theme:
+    name: readthedocs
+    highlightjs: true
+    hljs_languages:
+        - yaml
+        - rust
+nav:
+    - 'index.md'
+    - 'installation.md'
+    - 'configuration.md'
+    - 'authentication.md'
+    - 'oauth-token.md'
+    - 'Modules':
+        - 'modules/index.md'
+        - 'modules/contacts.md'
+        - 'modules/leads.md'
+        - 'modules/vendors.md'
+        - 'modules/custom.md'
+    - About:
+        - 'License': 'license.md'
