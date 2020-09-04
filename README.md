@@ -55,8 +55,8 @@ $ pip install -r zoho-crm-api/requirements.txt  # install requirements
 
 1) Log in to [api-console.zoho.com](https://api-console.zoho.com)
 2) Click "Add Client"
-3) Select  "Server-based Application" or "Self-Client"
-4) Select your new "Self-Client" or "Server-based Application" and generate a new grant token with your [desired scopes](https://www.zoho.com/crm/developer/docs/api/oauth-overview.html#scopes)
+3) Select "Self-Client"
+4) Select your new "Self-Client" and generate a new grant token with your [desired scopes](https://www.zoho.com/crm/developer/docs/api/oauth-overview.html#scopes)
 5) Copy that grant token
 
 ### Log-in 
@@ -375,7 +375,7 @@ Let's say you have a custom module called `Friends` which has the following stru
 * Email
 * Favorite Color
 
-You can create an object that talks to this module by creating a class that extends `ZohoCRMRecord` with a `_module_name` property equal to the [module's API Name](https://www.zoho.com/crm/developer/docs/api/modules-api.html#:~:text=Zoho%20CRM%20generates%20API%20name,%2C%20fields%2C%20and%20related%20lists.).
+You can create an object that talks to this module by creating a class that extends `ZohoCRMRecord` with a `_record_type` property equal to the [module's API Name](https://www.zoho.com/crm/developer/docs/api/modules-api.html#:~:text=Zoho%20CRM%20generates%20API%20name,%2C%20fields%2C%20and%20related%20lists.).
 
 ```python
 from zohocrm import ZohoCRMRecord
@@ -383,7 +383,7 @@ from zohocrm import ZohoCRMRecord
 class ZohoCRMFriend(ZohoCRMRecord):
     """Zoho CRM Custom Module "Friends"."""
 
-    _module_name = 'Friends'
+    _record_type = 'Friends'
 ```
 
 Zoho converts the module's field such that:
