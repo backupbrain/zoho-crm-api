@@ -3,6 +3,8 @@ This API is for people who are having trouble with the official Zoho API.
 
 * Supports Zoho API v2
 
+For full documentation visit [zoho-crm-api.readthedocs.io](https://zoho-crm-api.readthedocs.io).
+
 ## Quickstart
 
 Install:
