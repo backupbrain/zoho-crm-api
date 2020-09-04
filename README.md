@@ -1,5 +1,6 @@
 
 
+
 # Zoho CRM API
 This API is for people who are having trouble with the official Zoho API. 
 
@@ -200,6 +201,20 @@ Import the `ZohoCRMContact` module
 from zohocrm import ZohoCRMContact
 ```
 
+Zoho converts the module's field such that:
+* Spaces are replaced with underscores and 
+* The capitalization of each word is preserved
+
+For example, the field "First Name" becomes `.First_Name`
+
+For this reason, you can get and set the fields of a `ZohoCRMContact` like this:
+
+```python
+contact.First_Name = "John"
+contact.Last_Name = "Doe"
+contact.Email = "email@example.com"
+```
+
 #### Retrieve a contact
 
 ```python
@@ -208,6 +223,8 @@ contact = ZohoCRMContact.fetch(
     zohoclient,
     contact_id
 )
+
+print(lead.First_Name)
 ```
 
 #### Insert or Update a Contact
@@ -233,6 +250,8 @@ contact.Owner = owner
 # if contact.id is set, .save() will update
 # if contact.id is not set, .save() will insert
 contact.save()
+
+print(contact.id)
 ```
 
 #### Delete a Contact
@@ -275,15 +294,45 @@ from zohocrm import ZohoCRMVendor
 
 ```python
 vendor_id = 1234023423424
-contact = ZohoCRMVendor.fetch(
+vendor = ZohoCRMVendor.fetch(
     zohoclient,
     vendor_id
 )
+
+print(lead.Name)
 ```
 
 #### Insert or Update a Vendor
 
 Inserting  and updating a `ZohoCRMVendor` is the  same as with a `ZohoCRMContact`,  but with Vendor data instead of Contact data.
+
+
+#### Delete a Vendor
+
+You can delete a vendor with or without retrieving it first.
+
+If the lead has already been retrieved, the `.delete()` method will delete the record with the matching `.id`:
+
+```python
+vendor_id = 1234023423424
+vendor = ZohoCRMVendor.fetch(
+    zohoclient,
+    vendor_id
+)
+
+# Delete
+vendor.delete()
+```
+
+If the vendor has not yet been retrieved, the `.delete_id()` requires the `id` of the record and can be called from the static class:
+
+```python
+vendor_id = 1234023423424
+vendor = ZohoCRMVendor.delete_id(
+    zohoclient,
+    vendor_id
+)
+```
 
 ### Working with Leads
 
@@ -293,41 +342,13 @@ Import the `ZohoCRMLead` module
 from zohocrm import ZohoCRMLead
 ```
 
-#### Delete a Lead
-
-You can delete a contact with or without retrieving it first.
-
-If the lead has already been retrieved, the `.delete()` method will delete the record with the matching `.id`:
+#### Retrieve a Lead
 
 ```python
 lead_id = 1234023423424
 lead = ZohoCRMLead.fetch(
     zohoclient,
     lead_id
-)
-
-# Delete
-lead.delete()
-```
-
-If the lead has not yet been retrieved, the `.delete_id()` requires the `id` of the record and can be called from the static class:
-
-```python
-lead_id = 1234023423424
-contact = ZohoCRMLead.delete_id(
-    zohoclient,
-    lead_id
-)
-```
-
-
-#### Retrieve a Lead
-
-```python
-lead_id = 1234023423424
-contact = ZohoCRMLead.fetch(
-    zohoclient,
-    vendor_id
 )
 ```
 
@@ -339,6 +360,46 @@ Inserting and updating a `ZohoCRMLead` is the same as with a `ZohoCRMContact`,  
 
 Deleting a `ZohoCRMLead` is the same as with a `ZohoCRMContact`,  but with Lead data instead of Contact data.
 
-#### Other modules
+### Other modules
 
 The API interface is the same for all [Zoho Records](https://www.zoho.com/crm/developer/docs/api/get-records.html).
+
+### Custom modules
+
+Zoho CRM provides the ability to create custom modules. This API works within that framework to allow you to create, retrieve, update, and delete custom module records.
+
+Let's say you have a custom module called `Friends` which has the following structure:
+* Friend Owner
+* First Name
+* Last Name
+* Email
+* Favorite Color
+
+You can create an object that talks to this module by creating a class that extends `ZohoCRMRecord` with a `_module_name` property equal to the [module's API Name](https://www.zoho.com/crm/developer/docs/api/modules-api.html#:~:text=Zoho%20CRM%20generates%20API%20name,%2C%20fields%2C%20and%20related%20lists.).
+
+```python
+from zohocrm import ZohoCRMRecord
+
+class ZohoCRMFriend(ZohoCRMRecord):
+    """Zoho CRM Custom Module "Friends"."""
+
+    _module_name = 'Friends'
+```
+
+Zoho converts the module's field such that:
+* Spaces are replaced with underscores and 
+* The capitalization of each word is preserved
+
+Therefore, you can add a `Friend`  record by doing the following:
+
+```
+# ZohoCRMFRriend has already been defined
+# a valid oauth token has been retrieved
+
+friend.First_Name = "John"
+friend.Last_Name = "Doe"
+friend.Email = "email@example.com"
+friend.Favorite_Color = "blue"
+
+print(friend.Favorite_Color)
+```

@@ -85,6 +85,7 @@ class ZohoCRMRestClient:
             response_json = response.json()
             if 'error' not in response_json:
                 access_token = ZohoCRMOAuthToken(response.json())
+                self.oauth_access_token = access_token
                 return access_token
             else:
                 raise ValueError(response_json['error'])
@@ -110,6 +111,7 @@ class ZohoCRMRestClient:
             response_json = response.json()
             if 'error' not in response_json:
                 access_token = ZohoCRMOAuthToken(response.json())
+                self.oauth_refresh_token = access_token
                 return access_token
             else:
                 raise ValueError(response_json['error'])
@@ -148,7 +150,7 @@ class ZohoCRMRestClient:
 class ZohoCRMRecord:
     """Zoho Record."""
 
-    _record_type = ''
+    _module_name = ''
     _rest_client = None
 
     def __init__(self, zoho_rest_client):
@@ -189,7 +191,7 @@ class ZohoCRMRecord:
                 data[property] = value
         # print(json.dumps({'data': [data]}, indent=4))
         response = self._rest_client.api_fetch(
-            '{record_type}'.format(record_type=self._record_type),
+            '{module_name}'.format(module_name=self._module_name),
             method='POST',
             json_data={'data': [data]}
         )
@@ -207,7 +209,7 @@ class ZohoCRMRecord:
         """Update."""
         data = self.to_json()
         response = self._rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(record_type=self._record_type, record_id=self.id),
+            '{module_name}/{record_id}'.format(module_name=self._module_name, record_id=self.id),
             method='PUT',
             json_data={'data': [data]}
         )
@@ -221,7 +223,7 @@ class ZohoCRMRecord:
     def delete(self):
         """Delete."""
         response = self._rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(record_type=self._record_type, record_id=self.id),
+            '{module_name}/{record_id}'.format(module_name=self._module_name, record_id=self.id),
             method='DELETE'
         )
         if response.status_code == 200:
@@ -236,10 +238,10 @@ class ZohoCRMRecord:
     @classmethod
     def fetch(cls, zoho_rest_client, id):
         """Fetch by ID."""
-        print(cls._record_type)
+        print(cls._module_name)
         obj = cls(zoho_rest_client)
         response = zoho_rest_client.api_fetch(
-            '{record_type}/{id}'.format(record_type=cls._record_type, id=id),
+            '{module_name}/{id}'.format(module_name=cls._module_name, id=id),
             method='GET'
         )
         if response.status_code == 200:
@@ -256,7 +258,7 @@ class ZohoCRMRecord:
     def delete_id(cls, zoho_rest_client, id):
         """Delete from ID."""
         response = zoho_rest_client.api_fetch(
-            '{record_type}/{record_id}'.format(record_type=cls._record_type, record_id=id),
+            '{module_name}/{record_id}'.format(module_name=cls._module_name, record_id=id),
             method='DELETE'
         )
         if response.status_code != 200:
@@ -270,7 +272,7 @@ class ZohoCRMRecord:
 class ZohoCRMUser(ZohoCRMRecord):
     """Zoho CRM User."""
 
-    _record_type = 'users'
+    _module_name = 'users'
     _rest_client = None
 
     def fetch_current_user(self, access_token):
@@ -312,118 +314,118 @@ class ZohoCRMUser(ZohoCRMRecord):
 class ZohoCRMContact(ZohoCRMRecord):
     """Zoho CRM Contact."""
 
-    _record_type = 'Contacts'
+    _module_name = 'Contacts'
 
 
 class ZohoCRMVendor(ZohoCRMRecord):
     """Zoho CRM Vendor."""
 
-    _record_type = 'Vendors'
+    _module_name = 'Vendors'
 
 
 class ZohoCRMLead(ZohoCRMRecord):
     """Zoho CRM Lead."""
 
-    _record_type = 'Leads'
+    _module_name = 'Leads'
 
 
 class ZohoCRMAccount(ZohoCRMRecord):
     """Zoho CRM Account."""
 
-    _record_type = 'Deal'
+    _module_name = 'Deal'
 
 
 class ZohoCRMDeal(ZohoCRMRecord):
     """Zoho CRM Account."""
 
-    _record_type = 'Deals'
+    _module_name = 'Deals'
 
 
 class ZohoCRMCampaign(ZohoCRMRecord):
     """Zoho CRM Campaign."""
 
-    _record_type = 'Campaigns'
+    _module_name = 'Campaigns'
 
 
 class ZohoCRMTask(ZohoCRMRecord):
     """Zoho CRM Task."""
 
-    _record_type = 'Tasks'
+    _module_name = 'Tasks'
 
 
 class ZohoCRMCase(ZohoCRMRecord):
     """Zoho CRM Case."""
 
-    _record_type = 'Cases'
+    _module_name = 'Cases'
 
 
 class ZohoCRMEvent(ZohoCRMRecord):
     """Zoho CRM Event."""
 
-    _record_type = 'Events'
+    _module_name = 'Events'
 
 
 class ZohoCRMCall(ZohoCRMRecord):
     """Zoho CRM Call."""
 
-    _record_type = 'Calls'
+    _module_name = 'Calls'
 
 
 class ZohoCRMSolution(ZohoCRMRecord):
     """Zoho CRM Solution."""
 
-    _record_type = 'Solutions'
+    _module_name = 'Solutions'
 
 
 class ZohoCRMProduct(ZohoCRMRecord):
     """Zoho CRM Product."""
 
-    _record_type = 'Products'
+    _module_name = 'Products'
 
 
 class ZohoCRMQuote(ZohoCRMRecord):
     """Zoho CRM Quote."""
 
-    _record_type = 'Quotes'
+    _module_name = 'Quotes'
 
 
 class ZohoCRMInvoice(ZohoCRMRecord):
     """Zoho CRM Invoice."""
 
-    _record_type = 'Invoices'
+    _module_name = 'Invoices'
 
 
 class ZohoCRMCustom(ZohoCRMRecord):
     """Zoho CRM Custom."""
 
-    _record_type = 'Custom'
+    _module_name = 'Custom'
 
 
 class ZohoCRMActivity(ZohoCRMRecord):
     """Zoho CRM Activity."""
 
-    _record_type = 'Activities'
+    _module_name = 'Activities'
 
 
 class ZohoCRMPriceBook(ZohoCRMRecord):
     """Zoho CRM Price Book."""
 
-    _record_type = 'pricebooks'
+    _module_name = 'pricebooks'
 
 
 class ZohoCRMSalesOrder(ZohoCRMRecord):
     """Zoho CRM Sales Order."""
 
-    _record_type = 'salesorders'
+    _module_name = 'salesorders'
 
 
 class ZohoCRMPurchaseOrder(ZohoCRMRecord):
     """Zoho CRM Purchase Order."""
 
-    _record_type = 'purchaseorders'
+    _module_name = 'purchaseorders'
 
 
 class ZohoCRMNote(ZohoCRMRecord):
     """Zoho CRM Note."""
 
-    _record_type = 'notes'
+    _module_name = 'notes'
